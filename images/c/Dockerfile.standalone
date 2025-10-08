@@ -1,0 +1,14 @@
+FROM whanos-c
+
+# Copy sources (Makefile and .c files) into the working directory
+COPY app app
+COPY Makefile .
+
+# Compile and clean up sources
+RUN make && rm -rf *.c Makefile
+
+# Verify the compiled binary exists and is executable
+RUN test -x compiled-app
+
+# Default execution command
+CMD ["./compiled-app"]
