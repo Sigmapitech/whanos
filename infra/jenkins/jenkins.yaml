@@ -1,0 +1,18 @@
+jenkins:
+  systemMessage: "🚀 Welcome to Whanos Jenkins!"
+  numExecutors: 2
+
+unclassified:
+  location:
+    url: http://localhost:8080/
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              scope: GLOBAL
+              id: "github-creds"
+              description: "GitHub credentials"
+              username: "your-github-username"
+              password: "your-github-token"

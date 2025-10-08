@@ -1,0 +1,33 @@
+# Core management
+configuration-as-code
+workflow-aggregator
+git
+git-client
+github
+github-branch-source
+pipeline-github-lib
+scm-api
+credentials
+credentials-binding
+
+# Docker
+docker-plugin
+docker-workflow
+docker-commons
+
+# Kubernetes
+kubernetes
+kubernetes-cli
+
+# UI + Quality of life
+job-dsl
+timestamper
+ansicolor
+ws-cleanup
+matrix-auth
+
+# Optional but nice
+build-timeout
+thinBackup
+mailer
+email-ext
