@@ -1,0 +1,60 @@
+name: Mirror code to target repository
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract target repo name
+        id: target
+        run: |
+          # Strip `git@github.com:` and `.git` from the SSH URL
+          TARGET_REPO=$(echo "${{ secrets.GH_TARGET_REPO }}" | sed -E 's#(git@github.com:|https://github.com/)([^.]+)(\.git)?#\2#')
+          echo "target_repo=$TARGET_REPO" >> $GITHUB_OUTPUT
+
+      - name: Stop if running in the mirror repo
+        if: steps.target.outputs.target_repo == github.repository
+        run: |
+          echo "This is the mirror repo ($GITHUB_REPOSITORY). Skipping job."
+          exit 0
+
+      - name: Set up SSH
+        if: steps.target.outputs.target_repo != github.repository
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.GH_SSH_PRIVATE_KEY }}
+          known_hosts: 'github.com'
+
+      - name: Checkout source repository
+        if: steps.target.outputs.target_repo != github.repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add mirror remote
+        if: steps.target.outputs.target_repo != github.repository
+        run: |
+          git remote add mirror "${{ secrets.GH_TARGET_REPO }}"
+          git fetch --all
+
+      - name: Check if main branch exists on mirror
+        if: steps.target.outputs.target_repo != github.repository
+        id: check_main
+        run: |
+          if git ls-remote --heads mirror main | grep -q main; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push current branch to mirror
+        if: steps.target.outputs.target_repo != github.repository && (steps.check_main.outputs.exists == 'true' || github.ref == 'refs/heads/main')
+        run: |
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          echo "Pushing branch $BRANCH"
+          git push mirror "refs/remotes/origin/$BRANCH:refs/heads/$BRANCH" --force
