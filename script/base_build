@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+import subprocess
+from pathlib import Path
+
+IMAGES_DIR = Path("./images")
+
+for dir_path in IMAGES_DIR.iterdir():
+    if not dir_path.is_dir():
+        continue
+
+    dockerfile = dir_path / "Dockerfile.base"
+    if not dockerfile.is_file():
+        continue
+
+    lang = dir_path.name
+    print(f"Building base image for {lang}...")
+
+    subprocess.run(
+        ["docker", "build", "-t", f"whanos-{lang}", "-"],
+        input=dockerfile.read_bytes(),
+        check=True
+    )
+
+    print(f"Built whanos-{lang}\n")
