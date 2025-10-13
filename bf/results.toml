@@ -1,0 +1,5 @@
+counting = "123456789"
+eratosthenes = "23571113171923293137"
+factorial = "40320"
+hello_world = "Hello World!\n"
+quine = "01->1# +# :# 0# g# ,# :# 5# 8# *# 4# +# -# _@"

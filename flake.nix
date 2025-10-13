@@ -29,7 +29,9 @@
       };
     });
 
-    devShells = forAllSystems (pkgs: {
+    devShells = forAllSystems (pkgs: let
+      py-env = pkgs.python313.withPackages (p: with p; [ pytest tomli ]);
+    in {
       default = pkgs.mkShell {
         packages = with pkgs; [
           docker
@@ -37,6 +39,7 @@
 
           minikube
           kubectl
+          py-env
         ];
       };
     });
