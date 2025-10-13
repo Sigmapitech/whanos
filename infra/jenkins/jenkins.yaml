@@ -1,18 +1,17 @@
 jenkins:
   systemMessage: "🚀 Welcome to Whanos Jenkins!"
   numExecutors: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: admin
+          password: "${ADMIN_PASSWORD}"
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
 
 unclassified:
   location:
     url: http://localhost:8080/
-
-credentials:
-  system:
-    domainCredentials:
-      - credentials:
-          - usernamePassword:
-              scope: GLOBAL
-              id: "github-creds"
-              description: "GitHub credentials"
-              username: "your-github-username"
-              password: "your-github-token"
