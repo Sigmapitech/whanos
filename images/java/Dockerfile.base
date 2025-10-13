@@ -1,0 +1,11 @@
+FROM openjdk:21-jdk
+
+# Install Maven
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends maven && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Default command (can be overridden by custom Dockerfile)
+CMD ["/bin/bash"]

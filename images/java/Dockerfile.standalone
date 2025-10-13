@@ -1,0 +1,16 @@
+FROM whanos-java
+
+# Copy source code and Maven configuration
+COPY app app
+COPY pom.xml .
+
+# Build the application with Maven
+RUN mvn -f pom.xml clean package && \
+    cp target/*.jar app.jar && \
+    rm -rf app src target pom.xml
+
+# Ensure the built JAR exists
+RUN test -f app.jar
+
+# Execution command
+CMD ["java", "-jar", "app.jar"]

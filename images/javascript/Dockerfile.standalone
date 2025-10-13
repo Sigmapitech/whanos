@@ -1,0 +1,14 @@
+FROM whanos-javascript
+
+# Copy dependencies and install
+COPY package.json package-lock.json* ./
+RUN npm install --omit=dev && npm cache clean --force
+
+# Copy app source
+COPY app app
+
+# Clean unnecessary cache
+RUN rm -rf /root/.npm
+
+# Execution command
+CMD ["node", "."]

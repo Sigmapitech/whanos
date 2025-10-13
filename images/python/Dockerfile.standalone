@@ -1,0 +1,11 @@
+FROM whanos-python
+
+# Copy dependency file and install requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy app source
+COPY app app
+
+# Execution command
+CMD ["python", "-m", "app"]
