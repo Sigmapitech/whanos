@@ -7,10 +7,14 @@ services:
       - "50000:50000"
     volumes:
       - ./jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ./jenkins.yaml:/var/jenkins_home/casc_configs/jenkins.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock # Docker in docker
     environment:
-      # Ensure Jenkins runs as uid/gid 1000
       - JENKINS_UID=1000
       - JENKINS_GID=1000
-    user: "1000:1000"        # run Jenkins as non-root inside container
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/casc_configs/jenkins.yaml
+    env_file:
+      - .env
+    user: "1000:1000"
     restart: unless-stopped
