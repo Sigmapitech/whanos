@@ -1,56 +1,55 @@
 #!/usr/bin/env python3
+import getpass
 import subprocess
 import sys
 from pathlib import Path
-import time
-import os
 
-# Base directory relative to this script
-base_dir = Path(__file__).parent.resolve() / "../infra/jenkins"
-base_dir = base_dir.resolve()
+script_dir = Path(__file__).parent.resolve()
+base_dir = (script_dir / "../infra/jenkins").resolve()
+env_file = base_dir / ".env"
 
 if not base_dir.is_dir():
     print(f"Error: Jenkins directory not found at {base_dir}")
     sys.exit(1)
 
-print(f"Current directory: {base_dir}")
-
 JENKINS_HOME = base_dir / "jenkins_home"
 CONTAINER_NAME = "jenkins"
 
-# Clean Jenkins home
-print("🧹 Cleaning Jenkins home and fixing permissions...")
-if JENKINS_HOME.exists():
-    for item in JENKINS_HOME.iterdir():
-        if item.is_dir():
-            subprocess.run(["rm", "-rf", str(item)], check=True)
-        else:
-            item.unlink()
-JENKINS_HOME.mkdir(parents=True, exist_ok=True)
+fresh_install = len(sys.argv) > 1 and sys.argv[1].lower() == "fresh"
+result = subprocess.run(
+    ["docker", "ps", "-q", "-f", f"name={CONTAINER_NAME}"],
+    capture_output=True,
+    text=True
+)
+container_running = bool(result.stdout.strip())
 
-# Ensure volume is writable by Jenkins user (UID 1000)
-subprocess.run(["sudo", "chown", "-R", "1000:1000", str(JENKINS_HOME)], check=True)
+if container_running:
+    if fresh_install:
+        print(f"🛑 Stopping existing Jenkins container '{CONTAINER_NAME}'...")
+        subprocess.run(["docker", "compose", "-f", str(base_dir / "docker-compose.yml"), "down"], check=True)
+    else:
+        print(f"⚡ Jenkins container '{CONTAINER_NAME}' is already running.")
+        sys.exit(0)
 
-# Build Jenkins image
-print("🚀 Building Jenkins image...")
-subprocess.run(["docker", "compose", "-f", str(base_dir / "docker-compose.yml"), "build"], check=True)
+if fresh_install:
+    print("🧹 Performing fresh install")
+    if JENKINS_HOME.exists():
+        subprocess.run(["sudo", "rm", "-rf", str(JENKINS_HOME)], check=True)
+    JENKINS_HOME.mkdir(parents=True, exist_ok=True)
 
-# Start Jenkins
-print("🧱 Starting Jenkins...")
-subprocess.run(["docker", "compose", "-f", str(base_dir / "docker-compose.yml"), "up", "-d"], check=True)
-
-# Wait for initialization
-print("⏳ Waiting a few seconds for Jenkins to initialize...")
-time.sleep(10)
-
-# Print initial admin password
-print("🔑 Jenkins initial admin password:")
-try:
+    print("🚀 Building Jenkins image...")
     subprocess.run(
-        ["docker", "exec", CONTAINER_NAME, "cat", "/var/jenkins_home/secrets/initialAdminPassword"],
+        ["docker", "compose", "-f", str(base_dir / "docker-compose.yml"), "build"],
         check=True
     )
-except subprocess.CalledProcessError:
-    print("Could not read Jenkins initial admin password.")
 
+    admin_password = getpass.getpass(prompt="Enter a password for the Jenkins admin user: ")
+    with open(env_file, "w") as f:
+        f.write(f"ADMIN_PASSWORD={admin_password}\n")
+
+else:
+    print("⚡ Skipping cleanup and build; starting existing Jenkins container...")
+
+print("🧱 Starting Jenkins...")
+subprocess.run(["docker", "compose", "-f", str(base_dir / "docker-compose.yml"), "up", "-d"], check=True)
 print("\n✅ Jenkins is running at: http://localhost:8080")
