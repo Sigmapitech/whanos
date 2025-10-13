@@ -12,6 +12,11 @@ jenkins:
     loggedInUsersCanDoAnything:
       allowAnonymousRead: false
 
+appearance:
+  themeManager:
+    disableUserThemes: true
+    theme: "catppuccinMocha"
+
 unclassified:
   location:
     url: http://localhost:8080/

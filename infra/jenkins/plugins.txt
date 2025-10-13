@@ -31,3 +31,6 @@ build-timeout
 thinBackup
 mailer
 email-ext
+
+theme-manager
+catppuccin-theme
