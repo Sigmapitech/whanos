@@ -1,0 +1,219 @@
+#!/usr/bin/env python3
+import io
+import pathlib
+import random
+import sys
+
+
+class Befunge:
+    instructions = {}
+
+    @staticmethod
+    def register(symbol):
+        def wrapped(func):
+            Befunge.instructions[symbol] = func
+            return func
+
+        return wrapped
+
+    def __init__(self, program, width=80, height=25):
+        self.grid = [[' '] * width for _ in range(height)]
+        for y, line in enumerate(program.splitlines()):
+            for x, c in enumerate(line.rstrip('\n')):
+                self.grid[y][x] = c
+
+        self.stack = []
+        self.x = 0
+        self.y = 0
+        self.dx = 1
+        self.dy = 0
+        self.width = width
+        self.height = height
+        self.string_mode = False
+        self.running = True
+        self.out = io.StringIO()
+
+    def pop(self):
+        return self.stack.pop() if self.stack else 0
+
+    def push(self, v):
+        self.stack.append(v)
+
+    def step(self):
+        cmd = self.grid[self.y][self.x]
+
+        if self.string_mode:
+            if cmd == '"':
+                self.string_mode = False
+            else:
+                self.push(ord(cmd))
+        else:
+            ins = self.instructions.get(cmd)
+            if ins:
+                ins(self)
+            elif cmd.isdigit():
+                self.push(int(cmd))
+
+        self.x = (self.x + self.dx) % self.width
+        self.y = (self.y + self.dy) % self.height
+
+    def run(self):
+        while self.running:
+            self.step()
+
+        return self.out.getvalue()
+
+
+action = Befunge.register
+
+
+@action('+')
+def add(self):
+    b, a = self.pop(), self.pop()
+    self.push(a + b)
+
+
+@action('-')
+def sub(self):
+    b, a = self.pop(), self.pop()
+    self.push(a - b)
+
+
+@action('*')
+def mul(self):
+    b, a = self.pop(), self.pop()
+    self.push(a * b)
+
+
+@action('/')
+def div(self):
+    b, a = self.pop(), self.pop()
+    self.push(a // b if b != 0 else 0)
+
+
+@action('%')
+def mod(self):
+    b, a = self.pop(), self.pop()
+    self.push(a % b if b != 0 else 0)
+
+
+@action('!')
+def logical_not(self):
+    self.push(0 if self.pop() else 1)
+
+
+@action('`')
+def greater(self):
+    b, a = self.pop(), self.pop()
+    self.push(1 if a > b else 0)
+
+
+@action('>')
+def right(self):
+    self.dx, self.dy = 1, 0
+
+
+@action('<')
+def left(self):
+    self.dx, self.dy = -1, 0
+
+
+@action('^')
+def up(self):
+    self.dx, self.dy = 0, -1
+
+
+@action('v')
+def down(self):
+    self.dx, self.dy = 0, 1
+
+
+@action('?')
+def random_dir(self):
+    self.dx, self.dy = random.choice([(1, 0), (-1, 0), (0, 1), (0, -1)])
+
+
+@action('_')
+def horizontal_if(self):
+    self.dx, self.dy = (1, 0) if self.pop() == 0 else (-1, 0)
+
+
+@action('|')
+def vertical_if(self):
+    self.dx, self.dy = (0, 1) if self.pop() == 0 else (0, -1)
+
+
+@action('"')
+def toggle_string(self):
+    self.string_mode = not self.string_mode
+
+
+@action(':')
+def dup(self):
+    v = self.pop()
+    self.push(v)
+    self.push(v)
+
+
+@action('\\')
+def swap(self):
+    a, b = self.pop(), self.pop()
+    self.push(a)
+    self.push(b)
+
+
+@action('$')
+def discard(self):
+    self.pop()
+
+
+@action('.')
+def print_int(self):
+    self.out.write(f"{self.pop()}")
+
+
+@action(',')
+def print_char(self):
+    self.out.write(chr(self.pop()))
+
+
+@action('#')
+def bridge(self):
+    self.x = (self.x + self.dx) % self.width
+    self.y = (self.y + self.dy) % self.height
+
+
+@action('p')
+def put(self):
+    y, x, v = self.pop(), self.pop(), self.pop()
+    self.grid[y % self.height][x % self.width] = chr(v)
+
+
+@action('g')
+def get(self):
+    y, x = self.pop(), self.pop()
+    self.push(ord(self.grid[y % self.height][x % self.width]))
+
+
+@action('@')
+def end(self):
+    self.running = False
+
+
+
+def interpret(code):
+    interpreter = Befunge(code)
+    return interpreter.run()
+
+
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: python befunge.py <program.bf>")
+        sys.exit(1)
+
+    program = pathlib.Path(sys.argv[1]).read_text()
+    print(interpret(program))
+
+
+if __name__ == "__main__":
+    main()
