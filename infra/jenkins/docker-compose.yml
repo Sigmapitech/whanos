@@ -9,6 +9,7 @@ services:
       - ./jenkins_home:/var/jenkins_home
       - ./jenkins.yaml:/var/jenkins_home/casc_configs/jenkins.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock # Docker in docker
+      - ../../images:/images
     environment:
       - JENKINS_UID=1000
       - JENKINS_GID=1000
