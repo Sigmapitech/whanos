@@ -13,6 +13,9 @@ jenkins:
     loggedInUsersCanDoAnything:
       allowAnonymousRead: false
 
+jobs:
+  - file: /usr/share/jenkins/ref/init.groovy.d/job_dsl.groovy
+
 appearance:
   themeManager:
     disableUserThemes: true
