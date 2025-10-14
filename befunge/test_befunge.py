@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 
 
-BF_DIR = Path(__file__).parent / "bf"
+BF_DIR = Path(__file__).parent
 RESULT_FILE = BF_DIR / "results.toml"
 
 
@@ -21,7 +21,7 @@ def test_befunge_program(program_file, expected):
     assert path.exists(), f"Missing Befunge file: {path}"
 
     output = subprocess.run(
-        ["./script/befunge93", path],
+        [BF_DIR / "befunge93", path],
         capture_output=True,
         text=True,
     ).stdout.removesuffix('\n')
@@ -30,4 +30,3 @@ def test_befunge_program(program_file, expected):
         f"\nProgram: {program_file}\n"
         f"Expected:\n{expected!r}\nGot:\n{output!r}"
     )
-

@@ -1,6 +1,9 @@
+befunge93 linguist-language=Python
 *.bf linguist-language=Befunge
 
 script/base_build linguist-language=Python
-script/befunge93 linguist-language=Python
 script/detect_language linguist-language=Python
 script/setup linguist-language=Python
+
+images/**/*.base linguist-language=Dockerfile
+images/**/*.standalone linguist-language=Dockerfile
