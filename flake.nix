@@ -43,5 +43,9 @@
         ];
       };
     });
+
+    packages = forAllSystems (pkgs: {
+      ubuntu-test-vm = pkgs.callPackage ./ubuntu-test-vm.nix { };
+    });
   };
 }
