@@ -7,3 +7,5 @@ script/setup linguist-language=Python
 
 images/**/*.base linguist-language=Dockerfile
 images/**/*.standalone linguist-language=Dockerfile
+
+examples/** linguist-vendored
