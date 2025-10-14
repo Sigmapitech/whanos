@@ -1,10 +1,5 @@
-FROM gcc:13.2
+FROM whanos-foundation
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends make build-essential \
-    && rm -rf /var/lib/apt/lists/*
+RUN nix-env -iA nixpkgs.gcc nixpkgs.gnumake
 
-WORKDIR /app
-
-# Default command (can be overridden)
-CMD ["/bin/bash"]
+WORKDIR /workspace
