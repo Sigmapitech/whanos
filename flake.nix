@@ -45,7 +45,17 @@
     });
 
     packages = forAllSystems (pkgs: {
+      nixos-test-vm = import ./nixos-test.nix {
+        inherit nixpkgs pkgs;
+
+        nixos-system = self.nixosConfigurations.test;
+      };
+
       ubuntu-test-vm = pkgs.callPackage ./ubuntu-test-vm.nix { };
     });
+
+    nixosConfigurations.test = import ./basic-system.nix {
+      inherit lib;
+    };
   };
 }
