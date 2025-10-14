@@ -2,6 +2,8 @@
 import getpass
 import subprocess
 import sys
+import webbrowser
+
 from pathlib import Path
 
 script_dir = Path(__file__).parent.resolve()
@@ -52,4 +54,28 @@ else:
 
 print("🧱 Starting Jenkins...")
 subprocess.run(["docker", "compose", "-f", str(base_dir / "docker-compose.yml"), "up", "-d"], check=True)
-print("\n✅ Jenkins is running at: http://localhost:8080")
+
+
+print("\n📜 Streaming Jenkins logs (press Ctrl+C to exit)...\n")
+process = subprocess.Popen(
+    ["docker", "logs", "-f", CONTAINER_NAME],
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
+    text=True,
+)
+
+assert process.stdout is not None
+
+jenkins_ready = False
+jenkins_url = "http://localhost:8080"
+
+try:
+    for line in process.stdout:
+        print(line, end="")
+        if "Jenkins is fully up and running" in line:
+            jenkins_ready = True
+            print(f"🌐 Opening {jenkins_url}")
+            webbrowser.open(jenkins_url)
+            break
+except KeyboardInterrupt:
+    process.terminate()
