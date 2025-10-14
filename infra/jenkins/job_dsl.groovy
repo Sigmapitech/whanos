@@ -21,6 +21,23 @@ folder('Whanos base images') {
       }
     }
   }
+
+  freeStyleJob("Whanos base images/Build all base images") {
+    steps {
+      shell('echo "Building all base images"')
+    }
+
+    publishers {
+      downstreamParameterized {
+        trigger(languages.collect { "Whanos base images/whanos-${it}" }) {
+          condition('ALWAYS')
+          parameters {
+            currentBuild()
+          }
+        }
+      }
+    }
+  }
 }
 
 folder('Projects') {
