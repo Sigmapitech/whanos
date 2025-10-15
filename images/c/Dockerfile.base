@@ -1,5 +1,7 @@
 FROM whanos-foundation
 
-RUN nix-env -iA nixpkgs.gcc nixpkgs.gnumake
+RUN nix-env \
+  -f https://github.com/NixOS/nixpkgs/archive/7be562d046bf8e3b74c325443f0fef4c74f76767.tar.gz \
+  -iA gcc gnumake
 
 WORKDIR /workspace

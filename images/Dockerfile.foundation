@@ -17,4 +17,8 @@ ENV NIX_PATH=nixpkgs=$HOME/.nix-defexpr/channels/nixpkgs
 SHELL ["/bin/bash", "-c"]
 USER nixuser
 
+RUN mkdir -p $HOME/.config/nix \
+    && echo "experimental-features = nix-command flakes" \
+    | tee $HOME/.config/nix/nix.conf
+
 CMD [ "nix-shell", "-p", "bash" ]
