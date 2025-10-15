@@ -1,18 +1,18 @@
 FROM whanos-java AS builder
+USER root
+WORKDIR /app
 
-# Copy source code and Maven configuration
-COPY app app
-COPY pom.xml .
+# Copy source code
+COPY app/ .
 
 # Build the application with Maven
 RUN mvn -f pom.xml clean package && \
-    cp target/*.jar app.jar && \
-    rm -rf app src target pom.xml
+    cp target/*.jar app.jar
 
 # Ensure the built JAR exists
 RUN test -f app.jar
 
-FROM whanos-foundation
+FROM whanos-java
 COPY --from=builder /app/app.jar /app/app.jar
 
 WORKDIR /app
