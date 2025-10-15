@@ -1,11 +1,22 @@
-FROM whanos-python
+FROM whanos-python AS builder
+
+# Set working directory and create virtualenv at a fixed path
+WORKDIR /app
 
 # Copy dependency file and install requirements
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m venv /app/.venv && \
+    /app/.venv/bin/pip install --no-cache-dir -r requirements.txt
 
 # Copy app source
-COPY app app
+COPY app /app/app
 
-# Execution command
-CMD ["python", "-m", "app"]
+FROM whanos-python
+COPY --from=builder /app/.venv /app/.venv
+COPY --from=builder /app /app
+# Ensure PATH points to the actual venv bin directory (note the leading dot in .venv)
+ENV PATH="/app/.venv/bin:${PATH}"
+
+WORKDIR /app
+# Execution command - use the venv python explicitly for determinism
+CMD ["/app/.venv/bin/python", "-m", "app"]

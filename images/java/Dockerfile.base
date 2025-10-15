@@ -1,9 +1,7 @@
-FROM openjdk:21-jdk
+FROM whanos-foundation
 
-# Install Maven
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends maven && \
-    rm -rf /var/lib/apt/lists/*
+# Install OpenJDK and Maven via Nix
+RUN nix-env -iA nixpkgs.openjdk nixpkgs.maven
 
 WORKDIR /app
 

@@ -1,4 +1,7 @@
-FROM node:20.9
+FROM whanos-foundation
+
+# Install Node.js via Nix
+RUN nix-env -iA nixpkgs.nodejs
 
 WORKDIR /app
 

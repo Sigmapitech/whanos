@@ -1,4 +1,4 @@
-FROM whanos-javascript
+FROM whanos-javascript AS builder
 
 # Copy dependencies and install
 COPY package.json package-lock.json* ./
@@ -7,8 +7,12 @@ RUN npm install --omit=dev && npm cache clean --force
 # Copy app source
 COPY app app
 
-# Clean unnecessary cache
+# Build artifacts (if any) - keep workspace tidy
 RUN rm -rf /root/.npm
 
+FROM whanos-foundation
+COPY --from=builder /app/app /app/app
+
+WORKDIR /app
 # Execution command
 CMD ["node", "."]
