@@ -13,6 +13,7 @@ folder('Whanos base images') {
   languages.each { lang ->
     freeStyleJob("Whanos base images/whanos-${lang}") {
       steps {
+        shell("docker build -t whanos-foundation - < /images/Dockerfile.foundation")
         shell("docker build -t whanos-${lang} - < /images/${lang}/Dockerfile.base")
       }
 

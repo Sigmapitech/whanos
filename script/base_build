@@ -3,6 +3,13 @@ import subprocess
 from pathlib import Path
 
 IMAGES_DIR = Path("./images")
+FOUNDATION_IMAGE = (IMAGES_DIR / "Dockerfile.foundation", "whanos-foundation")
+
+subprocess.run(
+    ["docker", "build", "-t", FOUNDATION_IMAGE[1], "-"],
+    input=FOUNDATION_IMAGE[0].read_bytes(),
+    check=True
+)
 
 for dir_path in IMAGES_DIR.iterdir():
     if not dir_path.is_dir():
@@ -14,11 +21,14 @@ for dir_path in IMAGES_DIR.iterdir():
 
     lang = dir_path.name
     print(f"Building base image for {lang}...")
-
-    subprocess.run(
-        ["docker", "build", "-t", f"whanos-{lang}", "-"],
-        input=dockerfile.read_bytes(),
-        check=True
-    )
+    try:
+        subprocess.run(
+            ["docker", "build", "-t", f"whanos-{lang}", "-"],
+            input=dockerfile.read_bytes(),
+            check=True
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"Error building whanos-{lang}: {e}")
+        continue
 
     print(f"Built whanos-{lang}\n")
