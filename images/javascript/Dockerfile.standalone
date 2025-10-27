@@ -21,5 +21,13 @@ FROM whanos-javascript
 WORKDIR /app
 COPY --from=builder /app /app
 
+# Install tini as a minimal init to handle signals and reaping
+RUN nix-env -iA nixpkgs.tini
+
+# For discoverability and local runs
+ENV PORT=3000 HOST=0.0.0.0
+EXPOSE 3000
+
 # Execution command
+ENTRYPOINT ["tini", "-g", "--"]
 CMD ["node", "."]
