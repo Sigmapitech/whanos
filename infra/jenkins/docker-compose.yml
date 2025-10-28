@@ -1,6 +1,8 @@
 services:
   jenkins:
-    build: .
+    build:
+      context: ../../
+      dockerfile: infra/jenkins/Dockerfile
     container_name: jenkins
     ports:
       - "8080:8080"

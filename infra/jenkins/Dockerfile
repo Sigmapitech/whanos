@@ -14,10 +14,12 @@ USER root
 RUN mkdir -p /var/jenkins_home && chown -R jenkins:jenkins /var/jenkins_home
 USER jenkins
 
-COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
+COPY infra/jenkins/plugins.txt /usr/share/jenkins/ref/plugins.txt
 RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
 
 ENV CASC_JENKINS_CONFIG=/usr/share/jenkins/ref/jenkins.yaml
+COPY script /usr/share/jenkins/ref/script
+
 COPY --chown=jenkins:jenkins \
-  ./job_dsl.groovy           \
+  ./infra/jenkins/job_dsl.groovy           \
   /usr/share/jenkins/ref/init.groovy.d/job_dsl.groovy
