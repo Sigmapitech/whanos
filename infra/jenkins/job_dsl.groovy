@@ -72,19 +72,21 @@ freeStyleJob('link-project') {
             git checkout "$GIT_BRANCH"
 
             echo "Detecting language..."
-            WHANOS_DIR=$(dirname "$0")/..
+            WHANOS_DIR=$PWD
             if [ -n "$ROOT_FOLDER" ]; then
                 cd "$ROOT_FOLDER"
 
             fi
-            LANG_DETECTED=$($WHANOS_DIR/script/detect_language)
-            echo "Detected language: $LANG_DETECTED"
 
-            if [[ "$LANG_DETECTED" == "Error:"* || "$LANG_DETECTED" == "Unknown" ]]; then
+            LANG_DETECTED=$("$WHANOS_DIR/script/detect_language")
+            EXIT_CODE=$?
+
+            if [ $EXIT_CODE -ne 0 ]; then
                 echo "Error: repository is not Whanos-compatible"
                 exit 1
             fi
 
+            echo "Detected language: $LANG_DETECTED"
             echo "$LANG_DETECTED" > $WHANOS_DIR/detected_language.txt
         ''')
 
