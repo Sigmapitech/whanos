@@ -24,3 +24,9 @@ appearance:
 unclassified:
   location:
     url: http://localhost:8080/
+
+security:
+  scriptApproval:
+    approvedScriptHashes:
+      - "SHA512:4221429e203439d7010910774f0ef107c56e054eb7001881a02852d108c03fb8d8470c15e2a6d27141b604075db9c09223a7e5c083478dcef770f84b733ceb2a"
+    forceSandbox: false
