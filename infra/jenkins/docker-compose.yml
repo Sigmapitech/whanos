@@ -11,6 +11,7 @@ services:
       - ./jenkins_home:/var/jenkins_home
       - ./jenkins.yaml:/var/jenkins_home/casc_configs/jenkins.yaml:ro
       - ./../..:/workspace
+      - ./../../befunge:/befunge
       - /var/run/docker.sock:/var/run/docker.sock # Docker in docker
       - ../../images:/images
     environment:
