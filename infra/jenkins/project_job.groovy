@@ -1,6 +1,7 @@
 def String projectName = binding.variables['PROJECT_NAME']
 def String gitUrl = binding.variables['GIT_URL']
 def String gitBranch = binding.variables['GIT_BRANCH']
+def String root_folder = binding.variables['ROOT_FOLDER']
 def String credentialsId = binding.variables['GIT_CREDENTIALS_ID']
 def File languageFile = new File("${WORKSPACE}/repo/detected_language.txt")
 def String language = languageFile.text.trim().toLowerCase()
@@ -33,16 +34,14 @@ freeStyleJob("Projects/${projectName}") {
 
     steps {
         shell("echo Building ${projectName} using ${baseImage}")
-        shell("docker build -t ${projectName}:${language} --build-arg BASE_IMAGE=${baseImage} .")
         shell("""
-            #!/bin/bash
-            set -e
-            // if [ -f whanos.yml ]; then
-            //     echo "Deploying ${projectName} to Kubernetes..."
-            //     kubectl apply -f whanos.yml
-            // else
-            //     echo "No whanos.yml found, skipping deployment."
-            // fi
+            cd /var/jenkins_home/workspace/Projects/${projectName}/${root_folder}
+            if [ -f Dockerfile ]; then
+                echo "Dockerfile found, building image..."
+                docker build -t ${projectName} --build-arg BASE_IMAGE=${baseImage} .
+            else
+                docker build -t ${projectName} -f /images/${language}/Dockerfile.standalone .
+            fi
         """)
     }
 }
