@@ -1,0 +1,16 @@
+FROM whanos-foundation
+
+# Install Python (for the Befunge interpreter)
+RUN nix-env -iA nixpkgs.python3
+
+# Add our Befunge-93 interpreter to PATH
+# Place it in $HOME/.local/bin which is already on PATH in the foundation image
+WORKDIR /home/nixuser
+# When building, set the build context to the repo root (.) so this path resolves
+COPY befunge/befunge93 /home/nixuser/.local/bin/befunge93
+# RUN chmod +x /home/nixuser/.local/bin/befunge93
+
+WORKDIR /app
+
+# Default command (can be overridden by custom Dockerfile)
+CMD ["/bin/bash"]

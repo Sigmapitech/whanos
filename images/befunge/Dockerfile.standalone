@@ -1,0 +1,18 @@
+FROM whanos-befunge AS builder
+
+# Use a consistent app working directory
+WORKDIR /app
+
+# Copy the Befunge program (expected: single app/main.bf)
+COPY app app
+
+# Validate required entry file exists during build
+RUN test -f app/main.bf
+
+FROM whanos-befunge
+WORKDIR /app
+COPY --from=builder /app /app
+
+# Run the interpreter against the provided program
+ENTRYPOINT ["befunge93"]
+CMD ["app/main.bf"]
