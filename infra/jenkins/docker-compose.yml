@@ -1,6 +1,8 @@
 services:
   jenkins:
-    build: .
+    build:
+      context: ../../
+      dockerfile: infra/jenkins/Dockerfile
     container_name: jenkins
     ports:
       - "8080:8080"
@@ -8,6 +10,7 @@ services:
     volumes:
       - ./jenkins_home:/var/jenkins_home
       - ./jenkins.yaml:/var/jenkins_home/casc_configs/jenkins.yaml:ro
+      - ./../..:/workspace
       - /var/run/docker.sock:/var/run/docker.sock # Docker in docker
       - ../../images:/images
     environment:
