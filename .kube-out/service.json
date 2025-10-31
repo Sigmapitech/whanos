@@ -1,0 +1,25 @@
+{
+  "apiVersion": "v1",
+  "kind": "Service",
+  "metadata": {
+    "name": "ts-hello-world",
+    "namespace": "default",
+    "labels": {
+      "app": "ts-hello-world"
+    }
+  },
+  "spec": {
+    "type": "LoadBalancer",
+    "selector": {
+      "app": "ts-hello-world"
+    },
+    "ports": [
+      {
+        "name": "port-3000",
+        "port": 3000,
+        "targetPort": 3000,
+        "protocol": "TCP"
+      }
+    ]
+  }
+}

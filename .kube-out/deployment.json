@@ -1,0 +1,41 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "ts-hello-world",
+    "namespace": "default",
+    "labels": {
+      "app": "ts-hello-world"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "ts-hello-world"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "ts-hello-world"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "ts-hello-world",
+            "image": "whanos.azurecr.io/ts-hello-world:dev",
+            "imagePullPolicy": "IfNotPresent",
+            "ports": [
+              {
+                "containerPort": 3000
+              }
+            ]
+          }
+        ],
+        "terminationGracePeriodSeconds": 30
+      }
+    }
+  }
+}
