@@ -28,5 +28,5 @@ unclassified:
 security:
   scriptApproval:
     approvedScriptHashes:
-      - "SHA512:eb6ddc115541e8f2c7d8459abbfc8dc262d6d6b711371a2764e05ce9492ca18c50002afe65635480dbc0509c0d8acaf8ba73d42450fe518816d3b45fd79d9088"
+      - "SHA512:77e4a0f42722f1b76a8b34b278d7a3302325476237fe4a23960a9fea718303c5e5edb0c48d6c5845ba1b8e682620d006bd9e34c7458c4bfc9133fc0807123c66"
     forceSandbox: false

@@ -55,6 +55,7 @@ freeStyleJob('link-project') {
         stringParam('GIT_URL', '', 'Git repository URL to link')
         stringParam('GIT_BRANCH', 'main', 'Branch to monitor (default: main)')
         stringParam('ROOT_FOLDER', '', 'Root folder in the repository (if applicable)')
+        stringParam('NAMESPACE', 'default', 'Kubernetes namespace for deployment (if applicable)')
         credentialsParam('GIT_CREDENTIALS_ID') {
             description('Credentials ID for accessing the Git repository (if private)')
             defaultValue('')

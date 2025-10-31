@@ -38,12 +38,6 @@ if fresh_install:
         subprocess.run(["sudo", "rm", "-rf", str(JENKINS_HOME)], check=True)
     JENKINS_HOME.mkdir(parents=True, exist_ok=True)
 
-    print("🚀 Building Jenkins image...")
-    subprocess.run(
-        ["docker", "compose", "-f", str(base_dir / "docker-compose.yml"), "build"],
-        check=True
-    )
-
     docker_gid = subprocess.run(
         ["getent", "group", "docker"],
         capture_output=True,
@@ -54,9 +48,38 @@ if fresh_install:
         sys.exit(1)
     docker_gid_value = docker_gid.stdout.split(":")[2].strip()
     admin_password = getpass.getpass(prompt="Enter a password for the Jenkins admin user: ")
+    subprocess.run(
+        ["az login"],
+        shell=True,
+        check=True
+    )
+    registry_username = "whanos"
+    registry_url = subprocess.run(
+        [f"az acr show -n {registry_username} --query loginServer -o tsv"],
+        shell=True,
+        check=True,
+        capture_output=True,
+        text=True
+    ).stdout.strip()
+    registry_password = subprocess.run(
+        [f"az acr credential show -n {registry_username} --query passwords[1].value -o tsv"],
+        shell=True,
+        check=True,
+        capture_output=True,
+        text=True
+    ).stdout.strip()
     with open(env_file, "w") as f:
         f.write(f"ADMIN_PASSWORD={admin_password}\n")
         f.write(f"DOCKER_GID={docker_gid_value}\n")
+        f.write(f"REGISTRY_URL={registry_url}\n")
+        f.write(f"REGISTRY_USERNAME={registry_username}\n")
+        f.write(f"REGISTRY_PASSWORD={registry_password}\n")
+
+    print("🚀 Building Jenkins image...")
+    subprocess.run(
+        ["docker", "compose", "-f", str(base_dir / "docker-compose.yml"), "build"],
+        check=True
+    )
 
 else:
     print("⚡ Skipping cleanup and build; starting existing Jenkins container...")

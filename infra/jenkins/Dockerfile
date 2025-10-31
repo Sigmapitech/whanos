@@ -7,6 +7,7 @@ RUN groupadd -for -g $DOCKER_GID docker && usermod -aG docker jenkins
 # Install Docker CLI + kubectl
 RUN apt-get update && \
     apt-get install -y docker.io curl && \
+    (curl -sL https://aka.ms/InstallAzureCLIDeb | bash) && \
     curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" && \
     chmod +x kubectl && mv kubectl /usr/local/bin/ && \
     apt-get clean
