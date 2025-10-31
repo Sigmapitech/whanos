@@ -3,6 +3,8 @@ services:
     build:
       context: ../../
       dockerfile: infra/jenkins/Dockerfile
+      args:
+        DOCKER_GID: ${DOCKER_GID}
     container_name: jenkins
     ports:
       - "8080:8080"
@@ -19,7 +21,10 @@ services:
       - JENKINS_GID=1000
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
       - CASC_JENKINS_CONFIG=/var/jenkins_home/casc_configs/jenkins.yaml
+      - DOCKER_GID=${DOCKER_GID}
     env_file:
       - .env
     user: "1000:1000"
+    group_add:
+      - "${DOCKER_GID}"
     restart: unless-stopped

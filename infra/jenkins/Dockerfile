@@ -1,6 +1,8 @@
 FROM jenkins/jenkins:lts
 
 USER root
+ARG DOCKER_GID=998
+RUN groupadd -for -g $DOCKER_GID docker && usermod -aG docker jenkins
 
 # Install Docker CLI + kubectl
 RUN apt-get update && \

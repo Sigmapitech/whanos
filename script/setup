@@ -3,7 +3,6 @@ import getpass
 import subprocess
 import sys
 import webbrowser
-
 from pathlib import Path
 
 script_dir = Path(__file__).parent.resolve()
@@ -45,9 +44,19 @@ if fresh_install:
         check=True
     )
 
+    docker_gid = subprocess.run(
+        ["getent", "group", "docker"],
+        capture_output=True,
+        text=True
+    )
+    if docker_gid.returncode != 0:
+        print("Error: 'docker' group not found on this system.")
+        sys.exit(1)
+    docker_gid_value = docker_gid.stdout.split(":")[2].strip()
     admin_password = getpass.getpass(prompt="Enter a password for the Jenkins admin user: ")
     with open(env_file, "w") as f:
         f.write(f"ADMIN_PASSWORD={admin_password}\n")
+        f.write(f"DOCKER_GID={docker_gid_value}\n")
 
 else:
     print("⚡ Skipping cleanup and build; starting existing Jenkins container...")
