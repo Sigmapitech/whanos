@@ -40,6 +40,7 @@
           minikube
           kubectl
           py-env
+          azure-cli
         ];
       };
     });
