@@ -1,0 +1,34 @@
+controller:
+  image:
+    registry: whanos.azurecr.io
+    repository: jenkins-custom
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets:
+    - name: acr-credentials
+
+  serviceType: LoadBalancer
+
+  admin:
+    user: admin
+    password: admin123
+
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: default
+
+  installPlugins: [] # already baked in image
+
+  envVars:
+    - name: DOCKER_REGISTRY
+      value: "whanos.azurecr.io"
+
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "1"
+      memory: "2Gi"

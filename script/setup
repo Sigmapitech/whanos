@@ -37,6 +37,8 @@ if fresh_install:
     if JENKINS_HOME.exists():
         subprocess.run(["sudo", "rm", "-rf", str(JENKINS_HOME)], check=True)
     JENKINS_HOME.mkdir(parents=True, exist_ok=True)
+    # Fix permissions for Jenkins user (UID 1000)
+    subprocess.run(["sudo", "chown", "-R", "1000:1000", str(JENKINS_HOME)], check=True)
 
     docker_gid = subprocess.run(
         ["getent", "group", "docker"],
@@ -48,11 +50,11 @@ if fresh_install:
         sys.exit(1)
     docker_gid_value = docker_gid.stdout.split(":")[2].strip()
     admin_password = getpass.getpass(prompt="Enter a password for the Jenkins admin user: ")
-    subprocess.run(
-        ["az login"],
-        shell=True,
-        check=True
-    )
+    # subprocess.run(
+    #     ["az login"],
+    #     shell=True,
+    #     check=True
+    # )
     registry_username = "whanos"
     registry_url = subprocess.run(
         [f"az acr show -n {registry_username} --query loginServer -o tsv"],

@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-casc
+  namespace: jenkins
+data:
+  jenkins.yaml: |
+    jenkins:
+      systemMessage: "🚀 Welcome to Whanos Jenkins!"
+      numExecutors: 2
+      securityRealm:
+        local:
+          allowsSignup: false
+          users:
+            - id: admin
+              name: "admin"
+              password: "${ADMIN_PASSWORD}"
+
+      authorizationStrategy:
+        loggedInUsersCanDoAnything:
+          allowAnonymousRead: true   # ✅ change this from false
+
+    jobs:
+      - file: /usr/share/jenkins/ref/init.groovy.d/job_dsl.groovy
+
+    appearance:
+      themeManager:
+        disableUserThemes: true
+        theme: "catppuccinMocha"
+
+    unclassified:
+      location:
+        url: http://localhost:8080/
+
+    security:
+      scriptApproval:
+        approvedScriptHashes:
+          - "SHA512:77e4a0f42722f1b76a8b34b278d7a3302325476237fe4a23960a9fea718303c5e5edb0c48d6c5845ba1b8e682620d006bd9e34c7458c4bfc9133fc0807123c66"
+        forceSandbox: false

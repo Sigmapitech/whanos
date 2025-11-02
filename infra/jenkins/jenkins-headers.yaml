@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-headers
+  namespace: ingress-basic
+data:
+  Host: 4.251.145.83.nip.io

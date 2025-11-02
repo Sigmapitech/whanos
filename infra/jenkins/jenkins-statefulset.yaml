@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: jenkins
+  namespace: jenkins
+spec:
+  serviceName: "jenkins"
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: jenkins-controller
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: jenkins-controller
+    spec:
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 1000:1000 /var/jenkins_home"]
+          volumeMounts:
+            - name: jenkins-home
+              mountPath: /var/jenkins_home
+      containers:
+        - name: jenkins
+          image: whanos.azurecr.io/jenkins-custom:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 50000
+              name: agent
+          env:
+            - name: CASC_JENKINS_CONFIG
+              value: /usr/share/jenkins/ref/jenkins.yaml
+            - name: ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: jenkins-admin-secret
+                  key: username
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: jenkins-admin-secret
+                  key: password
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "1"
+              memory: "2Gi"
+          volumeMounts:
+            - name: jenkins-home
+              mountPath: /var/jenkins_home
+            - name: casc-config
+              mountPath: /usr/share/jenkins/ref/jenkins.yaml
+              subPath: jenkins.yaml
+          readinessProbe:
+            httpGet:
+              path: /login
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          livenessProbe:
+            httpGet:
+              path: /login
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 30
+      imagePullSecrets:
+        - name: acr-secret
+      volumes:
+        - name: casc-config
+          configMap:
+            name: jenkins-casc
+  volumeClaimTemplates:
+    - metadata:
+        name: jenkins-home
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 20Gi

@@ -1,0 +1,64 @@
+# Base Jenkins image
+FROM jenkins/jenkins:lts-jdk17
+
+USER root
+
+ARG DOCKER_GID=998
+
+# Add Jenkins to Docker group
+RUN groupadd -for -g $DOCKER_GID docker && \
+    usermod -aG docker jenkins
+
+# Install dependencies
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        docker.io \
+        curl \
+        unzip \
+        python3 \
+        python3-pip \
+        python3-yaml \
+        git \
+        make \
+        apt-transport-https \
+        ca-certificates \
+        gnupg \
+        lsb-release && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Azure CLI
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb -o /tmp/install_azure_cli.sh && \
+    bash /tmp/install_azure_cli.sh && rm /tmp/install_azure_cli.sh
+
+# Install kubectl (fixed version)
+RUN curl -sSL -o /usr/local/bin/kubectl https://dl.k8s.io/release/v1.28.0/bin/linux/amd64/kubectl && \
+    chmod +x /usr/local/bin/kubectl
+
+# Jenkins home + workspace + images
+RUN mkdir -p /var/jenkins_home /workspace /images && \
+    chown -R jenkins:jenkins /var/jenkins_home /workspace /images
+
+# Copy project assets Jenkins will use
+COPY --chown=jenkins:jenkins script /workspace/script
+COPY --chown=jenkins:jenkins images /images
+
+# Copy plugin list and install all plugins first
+COPY infra/jenkins/plugins.txt /usr/share/jenkins/ref/plugins.txt
+RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
+
+# Copy Jenkins Configuration as Code (JCasC)
+COPY infra/jenkins/jenkins.yaml /usr/share/jenkins/ref/jenkins.yaml
+ENV CASC_JENKINS_CONFIG=/usr/share/jenkins/ref/jenkins.yaml
+
+# Copy Job DSL scripts
+COPY --chown=jenkins:jenkins infra/jenkins/job_dsl.groovy /usr/share/jenkins/ref/init.groovy.d/job_dsl.groovy
+
+# Fix ownerships
+RUN chown -R jenkins:jenkins /usr/share/jenkins/ref
+
+# Disable setup wizard
+ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
+
+USER jenkins
+
+EXPOSE 8080 50000

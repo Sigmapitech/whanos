@@ -23,7 +23,7 @@ kubernetes
 kubernetes-cli
 
 # UI + Quality of life
-job-dsl
+job-dsl:1.87
 timestamper
 ansicolor
 ws-cleanup
@@ -37,3 +37,4 @@ email-ext
 
 theme-manager
 catppuccin-theme
+

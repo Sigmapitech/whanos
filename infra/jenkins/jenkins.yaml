@@ -11,7 +11,7 @@ jenkins:
 
   authorizationStrategy:
     loggedInUsersCanDoAnything:
-      allowAnonymousRead: false
+      allowAnonymousRead: true
 
 jobs:
   - file: /usr/share/jenkins/ref/init.groovy.d/job_dsl.groovy
