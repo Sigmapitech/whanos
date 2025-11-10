@@ -76,7 +76,7 @@ freeStyleJob("Projects/${projectName}") {
             # Deploy to Kubernetes if whanos.yml present
             if [ -f whanos.yml ]; then
                 echo "Rendering Kubernetes manifests"
-                python /workspace/script/kube_render.py \
+                /venv/bin/python3 /usr/share/jenkins/ref/script/kube_render \
                     --image "\${IMAGE_REF}:\${IMAGE_TAG}" \
                     --name "${projectName}" \
                     --namespace "${k8sNamespace}" \

@@ -6,7 +6,7 @@ RUN groupadd -for -g $DOCKER_GID docker && usermod -aG docker jenkins
 
 # Install Docker CLI + kubectl
 RUN apt-get update && \
-    apt-get install -y docker.io curl && \
+    apt-get install -y docker.io curl python3.13-venv && \
     (curl -sL https://aka.ms/InstallAzureCLIDeb | bash) && \
     curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" && \
     chmod +x kubectl && mv kubectl /usr/local/bin/ && \
@@ -14,8 +14,11 @@ RUN apt-get update && \
 
 # Jenkins setup
 USER root
+SHELL ["bash", "-c"]
 RUN mkdir -p /var/jenkins_home && chown -R jenkins:jenkins /var/jenkins_home
+RUN python3 -m venv venv && chown -R jenkins:jenkins /venv && /venv/bin/pip install pyyaml
 USER jenkins
+
 
 COPY infra/jenkins/plugins.txt /usr/share/jenkins/ref/plugins.txt
 RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
